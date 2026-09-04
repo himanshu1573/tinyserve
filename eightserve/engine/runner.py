@@ -66,3 +66,10 @@ class Runner:
         out = logits[0, -1, :]
         mx.eval(out)
         return out
+
+    @staticmethod
+    def peak_memory_gb() -> float:
+        """Peak bytes MLX has held, in GB. psutil's RSS misses unified
+        (Metal) memory almost entirely, so this is the number that describes
+        the 8 GB budget."""
+        return mx.get_peak_memory() / 1024**3
