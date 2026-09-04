@@ -1,4 +1,4 @@
-# eightserve
+# tinyserve
 
 A readable LLM serving engine on an 8 GB M1 MacBook Air.
 
