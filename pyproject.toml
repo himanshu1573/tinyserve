@@ -1,25 +1,31 @@
 [project]
-name = "eightserve"
+name = "tinyserve"
 version = "0.1.0"
-description = "A readable LLM serving engine for an 8 GB M1"
+description = "A readable LLM serving engine for an 8 GB M1: continuous batching + paged KV on MLX"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "mlx-lm>=0.20",
     "fastapi>=0.115",
     "uvicorn>=0.32",
     "psutil>=6.0",
+    "httpx>=0.27",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
-    "httpx>=0.27",
 ]
+
+[project.scripts]
+tinyserve = "tinyserve.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tinyserve"]
 
 [tool.pytest.ini_options]
 markers = ["slow: loads the real model (deselect with '-m \"not slow\"')"]
