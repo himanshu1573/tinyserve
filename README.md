@@ -178,7 +178,8 @@ The measurements are the point. The code is just how you get them.
 
 The full campaign is in [`MEASUREMENTS.md`](MEASUREMENTS.md) — every number
 dated, with the command that produced it, median of 3 warmed runs on a
-quiet machine.
+quiet machine. The figures below are generated from those same numbers by
+`python scripts/make_figures.py`.
 
 **Eight users, serial engine vs the finished engine:**
 
@@ -187,6 +188,11 @@ quiet machine.
 | aggregate throughput | 22.7 tok/s | 32.0 tok/s | 1.41× |
 | time to first token (median) | 14.9 s | 1.2 s | **12× faster** |
 | time to first token (p95) | 28.2 s | 1.8 s | 15× faster |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/ttft-dark.svg">
+  <img alt="Eight users, time to first token: serial engine 14.9 s median and 28.2 s p95, versus tinyserve at 1.2 s and 1.8 s" src="assets/ttft-light.svg" width="100%">
+</picture>
 
 **The headline this project set out to write was wrong.** The plan was
 *"my laptop serves 8 people almost as fast as it serves 1."* It does not:
@@ -201,6 +207,11 @@ on its own, at 256 tokens of context per row:
 | 8 | 191.1 | 41.9 |
 | 16 | 200.5 | 79.8 |
 | 32 | 211.7 | 151.1 |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/batching-regimes-dark.svg">
+  <img alt="Two panels against batch size. Left: milliseconds per decode step rises steeply from 34.9 at batch 1 to 191.1 at batch 8, then stays flat to 211.7 at batch 32. Right: aggregate throughput is nearly flat to 41.9 tok/s at batch 8, then climbs steeply to 151.1 tok/s at batch 32." src="assets/batching-regimes-light.svg" width="100%">
+</picture>
 
 Below ~8 rows a decode step costs time **proportional to the batch**, so
 batching returns almost nothing. From ~8 to 32 the step time is **flat** —
