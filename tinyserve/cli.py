@@ -1,7 +1,7 @@
 """tinyserve command line.
 
     tinyserve generate --prompt medium          the loop in-process, timed (M1)
-    tinyserve serve --max-batch 8 --kv-gb 0.5   the HTTP server
+    tinyserve serve --max-batch 16 --kv-gb 0.5  the HTTP server
     python -m tinyserve.bench.harness --users 8 N concurrent clients (M3+)
 
 Every timer in ``generate`` brackets an mx.eval() inside the runner, so

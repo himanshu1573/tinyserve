@@ -15,7 +15,12 @@ class EngineConfig:
 
     # Scheduler ---------------------------------------------------------
     # 1 reproduces the serial engine of sessions 1-3 exactly.
-    max_batch_size: int = 8
+    # 16, not 8: below ~8 rows a decode step costs time proportional to the
+    # batch, so batching returns nothing; from ~8 to 32 the step time is flat
+    # and every extra row is nearly free. 8 sits at the worst point on that
+    # curve. Measured in M9; raising the cap to 16 gave +26% aggregate
+    # throughput and 2.9x better p95 latency at the same 16-user load.
+    max_batch_size: int = 16
     # "continuous": admit and evict every step (session 6).
     # "static": admit a batch, run it to completion, admit the next (sessions 4-5).
     scheduling: str = "continuous"

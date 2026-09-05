@@ -126,7 +126,7 @@ Every knob that changes a measurement is a flag, so each claim in
 `MEASUREMENTS.md` can be reproduced and each design choice can be A/B'd:
 
 ```bash
-tinyserve serve --max-batch 8 --scheduling continuous --kv-backend paged \
+tinyserve serve --max-batch 16 --scheduling continuous --kv-backend paged \
                 --kv-gb 0.5 --block-size 16
 ```
 
@@ -174,14 +174,76 @@ Every build step ends in a number written down. **No number = not done.**
 
 The measurements are the point. The code is just how you get them.
 
+## What it measured
+
+The full campaign is in [`MEASUREMENTS.md`](MEASUREMENTS.md) — every number
+dated, with the command that produced it, median of 3 warmed runs on a
+quiet machine.
+
+**Eight users, serial engine vs the finished engine:**
+
+| | serial (batch 1) | final engine | change |
+|---|---|---|---|
+| aggregate throughput | 22.7 tok/s | 32.0 tok/s | 1.41× |
+| time to first token (median) | 14.9 s | 1.2 s | **12× faster** |
+| time to first token (p95) | 28.2 s | 1.8 s | 15× faster |
+
+**The headline this project set out to write was wrong.** The plan was
+*"my laptop serves 8 people almost as fast as it serves 1."* It does not:
+per-user throughput at 8 users is 5.3 tok/s against ~30 for a single user.
+
+The reason is the most interesting number here. Timing the batched forward
+on its own, at 256 tokens of context per row:
+
+| batch | ms/step | aggregate tok/s |
+|---|---|---|
+| 1 | 34.9 | 28.6 |
+| 8 | 191.1 | 41.9 |
+| 16 | 200.5 | 79.8 |
+| 32 | 211.7 | 151.1 |
+
+Below ~8 rows a decode step costs time **proportional to the batch**, so
+batching returns almost nothing. From ~8 to 32 the step time is **flat** —
+four times the work for 11% more time — and throughput scales linearly.
+"Decode is memory-bound, so batching is free" turns out to be a claim about
+the hardware, not about the code: on this chip it only becomes true past a
+batch of about 8, and the engine's default cap was sitting exactly on the
+boundary. It is now 16, which measured +26% throughput and 2.9× better p95
+latency at the same load.
+
+So the honest sentence is:
+
+> **My laptop makes eight people wait 1.2 seconds instead of 15 to see
+> their first word — and the throughput win everyone talks about doesn't
+> start until batch 16.**
+
+Continuous batching on this hardware is a *latency* technology. It turns a
+queue into a batch, and the queue was what made users wait.
+
+Other findings: prefix sharing is worth 1.74× on TTFT between users;
+paging costs 19% of single-stream throughput on a machine with no
+PagedAttention kernel; static batching does not batch at all when requests
+arrive while a batch is running. `SURPRISES.md` has the ones that were
+genuinely surprising, including how prefix caching quietly breaks greedy
+determinism.
+
 ## Status
 
-The engine is built: serial loop, HTTP + SSE, static batching, continuous
-batching, paged KV, and prefix sharing all work and are under test.
+Built and measured. Sessions 1-9 of the plan are done: serial loop,
+HTTP + SSE, static batching, continuous batching, paged KV with a
+hand-written block allocator, and prefix sharing, all under test (90 tests).
 
-The benchmark campaign is **in progress** — `MEASUREMENTS.md` is where the
-numbers land as they are produced, and it is deliberately empty until they
-are actually measured on the machine rather than estimated.
+Known open items, stated rather than hidden:
+
+- The M6 capacity win of paging is arithmetic, not yet demonstrated — the
+  benchmark workload never created real memory pressure (the model stops at
+  ~180 tokens, so no context grew big enough to strain the budget).
+- The prefix-sharing number is dominated by users sending *identical*
+  prompts, because the frozen prompt set has 3 prompts and the benchmark
+  has 8 users. Isolating the value of a shared system preamble needs a
+  prompt set with 8 distinct questions.
+- At batch 16 the isolated forward does 80 tok/s and the server does 37.
+  The missing half is scheduler overhead, not GPU.
 
 ## Reading list
 
