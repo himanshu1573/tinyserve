@@ -80,7 +80,7 @@ Two facts shape the whole design:
 Requires Apple Silicon, macOS, and Python 3.12.
 
 ```bash
-git clone https://github.com/himanshu1573/eightserve.git tinyserve
+git clone https://github.com/himanshu1573/tinyserve.git
 cd tinyserve
 uv venv --python 3.12
 uv pip install -e ".[dev]"
