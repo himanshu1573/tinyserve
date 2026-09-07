@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="330" viewBox="0 0 880 330" role="img" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif">
+  <rect width="880" height="330" fill="#fcfcfb"/>
+  <text x="14" y="26" fill="#0b0b0b" font-size="13" font-weight="600">Eight users arrive at once: a queue versus a batch</text>
+  <text x="14" y="42" fill="#52514e" font-size="10.5">Each bar is one user, from their first token to their last. Drawn to scale from the measured runs.</text>
+  <g stroke="#e7e6e2"><line x1="150.0" y1="60" x2="150.0" y2="278"/><line x1="247.2" y1="60" x2="247.2" y2="278"/><line x1="344.3" y1="60" x2="344.3" y2="278"/><line x1="441.4" y1="60" x2="441.4" y2="278"/><line x1="538.6" y1="60" x2="538.6" y2="278"/><line x1="635.8" y1="60" x2="635.8" y2="278"/><line x1="732.9" y1="60" x2="732.9" y2="278"/><line x1="830.0" y1="60" x2="830.0" y2="278"/></g>
+  <g fill="#52514e" font-size="10" text-anchor="middle"><text x="150.0" y="294">0 s</text><text x="247.2" y="294">5 s</text><text x="344.3" y="294">10 s</text><text x="441.4" y="294">15 s</text><text x="538.6" y="294">20 s</text><text x="635.8" y="294">25 s</text><text x="732.9" y="294">30 s</text><text x="830.0" y="294">35 s</text></g>
+  <text x="14" y="76" fill="#eb6834" font-size="11" font-weight="600">ONE AT A TIME</text>
+  <text x="14" y="90" fill="#52514e" font-size="10">first token: 14.9 s median</text>
+  <g fill="#eb6834"><rect x="150.0" y="66" width="76.7" height="9" rx="2"/><rect x="227.7" y="78" width="76.7" height="9" rx="2"/><rect x="305.4" y="90" width="76.7" height="9" rx="2"/><rect x="383.2" y="102" width="76.7" height="9" rx="2"/><rect x="460.9" y="114" width="76.7" height="9" rx="2"/><rect x="538.6" y="126" width="76.7" height="9" rx="2"/><rect x="616.3" y="138" width="76.7" height="9" rx="2"/><rect x="694.0" y="150" width="76.7" height="9" rx="2"/></g>
+  <text x="765.8" y="172" fill="#52514e" font-size="10" text-anchor="end">user 8 waits 28 s for the first word</text>
+  <text x="14" y="190" fill="#2a78d6" font-size="11" font-weight="600">CONTINUOUS BATCHING</text>
+  <text x="14" y="204" fill="#52514e" font-size="10">first token: 1.2 s median</text>
+  <g fill="#2a78d6"><rect x="173.3" y="180" width="388.6" height="9" rx="2"/><rect x="173.3" y="192" width="388.6" height="9" rx="2"/><rect x="173.3" y="204" width="388.6" height="9" rx="2"/><rect x="173.3" y="216" width="388.6" height="9" rx="2"/><rect x="173.3" y="228" width="388.6" height="9" rx="2"/><rect x="173.3" y="240" width="388.6" height="9" rx="2"/><rect x="173.3" y="252" width="388.6" height="9" rx="2"/><rect x="173.3" y="264" width="388.6" height="9" rx="2"/></g>
+  <text x="571.9" y="230" fill="#52514e" font-size="10">everyone starts at once,</text>
+  <text x="571.9" y="244" fill="#52514e" font-size="10">each gets about 5 tok/s</text>
+  <text x="14" y="318" fill="#52514e" font-size="10.5">Total work barely changed (31.8 s of wall clock became 21.2 s). What changed is that nobody stands in line.</text>
+</svg>

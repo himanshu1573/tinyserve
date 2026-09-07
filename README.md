@@ -26,6 +26,20 @@ That is what a real serving engine (vLLM, TGI, llm-d) is *for*. This repo
 builds a small honest version of one to find out where the claim holds and
 where it breaks on hardware this size.
 
+Here is the same idea as a picture. A plain server makes users wait in a
+line. A serving engine puts them all into one batch and runs them together.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/why-dark.svg">
+  <img alt="Top: eight users in a line, the laptop serves one at a time, user 8 waits 28 seconds to see a word. Bottom: the same eight users in one batch, everyone sees a first word in 1.2 seconds. The question: can one 8 GB laptop serve eight people almost as fast as one?" src="assets/why-light.svg" width="100%">
+</picture>
+
+Why can one batch be almost free? Because the slow part of making a token
+is reading the model weights, and that read is the same size for one user
+or for eight:
+
+![One weight read gives one token for one user, or eight tokens for eight users](assets/one-read-light.svg)
+
 ## What it is
 
 An OpenAI-compatible HTTP server around **Qwen2.5-1.5B-Instruct (4-bit)**
@@ -38,6 +52,21 @@ on **MLX**, with:
   sharing across users,
 - a **benchmark harness** that fires N concurrent users and records TTFT,
   per-user tok/s, aggregate tok/s and peak RAM.
+
+This is the path one request takes through the code:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/what-it-is-dark.svg">
+  <img alt="Flow chart of one request: client, HTTP server, engine, scheduler, runner on the M1 GPU. The block manager hangs off the scheduler and hands out KV cache blocks. Every new token streams straight back to the client. The benchmark harness acts as 8 clients." src="assets/what-it-is-light.svg" width="100%">
+</picture>
+
+In plain words: a client sends a prompt over HTTP. The server turns the
+text into tokens and hands it to the engine. The engine owns the one thread
+that talks to the GPU. The scheduler picks which requests run in this step,
+and the block manager gives each one memory for its KV cache. The runner
+does the math on the GPU. Every new token goes back to the client right
+away, so words show up while the rest is still being made. (These diagrams
+are drawn by `python scripts/make_diagrams.py`.)
 
 MLX was chosen over llama.cpp and PyTorch-on-MPS for one reason: it runs on
 the M1 GPU from Python and exposes its KV cache as plain arrays, so the
@@ -64,6 +93,15 @@ tinyserve/
 ├── bench/harness.py      # N concurrent clients: TTFT, tok/s, peak RSS
 └── cli.py                # tinyserve generate | tinyserve serve
 ```
+
+The scheduler runs one loop, over and over. Each pass gives every running
+user one new token. New users join at the start of a pass, and finished
+users hand their memory back at the end:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/one-step-dark.svg">
+  <img alt="One scheduler step: admit waiting requests and prefill them, decode one token for every running user in one batched pass, evict finished users and free their KV blocks, then loop. Below: the KV cache drawn as 16-token blocks, with a shared system prompt block, per-user blocks, and free blocks." src="assets/one-step-light.svg" width="100%">
+</picture>
 
 Two facts shape the whole design:
 
@@ -193,6 +231,11 @@ quiet machine. The figures below are generated from those same numbers by
   <source media="(prefers-color-scheme: dark)" srcset="assets/ttft-dark.svg">
   <img alt="Eight users, time to first token: serial engine 14.9 s median and 28.2 s p95, versus tinyserve at 1.2 s and 1.8 s" src="assets/ttft-light.svg" width="100%">
 </picture>
+
+Drawn on one timeline, this is what that change looks like. Each bar is one
+user, from their first token to their last:
+
+![Eight users as a queue versus a batch, drawn on one timeline](assets/queue-vs-batch-light.svg)
 
 **The headline this project set out to write was wrong.** The plan was
 *"my laptop serves 8 people almost as fast as it serves 1."* It does not:
