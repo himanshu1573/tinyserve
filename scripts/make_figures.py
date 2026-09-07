@@ -1,9 +1,8 @@
 """Render the README figures from the M9 and M8 measurements.
 
-Two figures, each emitted twice (light and dark) so the README can serve the
-right one to the reader's GitHub theme via <picture>. They live in assets/
-because docs/ is gitignored. No dependencies: the
-SVG is written directly, from the numbers recorded in MEASUREMENTS.md.
+Two figures, light theme only. They live in assets/ because docs/ is
+gitignored. No dependencies: the SVG is written directly, from the numbers
+recorded in MEASUREMENTS.md.
 
     python scripts/make_figures.py
 """
@@ -26,8 +25,6 @@ TTFT = [("median", 14.9, 1.2), ("p95", 28.2, 1.8)]
 THEMES = {
     "light": dict(surface="#fcfcfb", ink="#0b0b0b", ink2="#52514e", grid="#e7e6e2",
                   series="#2a78d6", band="#f2f1ed", ref="#9a9992", bar2="#eb6834"),
-    "dark": dict(surface="#1a1a19", ink="#ffffff", ink2="#c3c2b7", grid="#2f2f2c",
-                 series="#3987e5", band="#242422", ref="#7d7c75", bar2="#d95926"),
 }
 
 W, H = 880, 330
@@ -159,7 +156,7 @@ def main():
     for theme in THEMES:
         (OUT / f"batching-regimes-{theme}.svg").write_text(figure_batching(theme))
         (OUT / f"ttft-{theme}.svg").write_text(figure_ttft(theme))
-    print(f"wrote 4 files to {OUT}")
+    print(f"wrote 2 files to {OUT}")
 
 
 if __name__ == "__main__":

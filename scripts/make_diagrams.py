@@ -1,8 +1,7 @@
 """Render the README explainer diagrams: why tinyserve exists, what it is,
 and what one scheduler step does.
 
-Same deal as make_figures.py: plain SVG written by hand, once per theme, so
-the README can pick the right one for the reader's GitHub theme.
+Same deal as make_figures.py: plain SVG written by hand, light theme only.
 
     python scripts/make_diagrams.py
 """
@@ -241,7 +240,7 @@ def main():
         (OUT / f"why-{theme}.svg").write_text(figure_why(theme))
         (OUT / f"what-it-is-{theme}.svg").write_text(figure_what(theme))
         (OUT / f"one-step-{theme}.svg").write_text(figure_step(theme))
-    print(f"wrote 6 files to {OUT}")
+    print(f"wrote 3 files to {OUT}")
 
 
 if __name__ == "__main__":
